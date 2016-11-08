@@ -1,12 +1,9 @@
 ﻿using Gym_sports_training.Repository.DAL;
 using Gym_sports_training.Repository.Models;
-using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 
 
@@ -14,17 +11,22 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
 {
     public class CoachesController : Controller
     {
-        private GymContext db = new GymContext();
+        private ICoachRepository coachRepository;
+
+        public CoachesController()
+        {
+            this.coachRepository = new CoachRepository(new GymContext());
+        }
 
         // GET: Coaches
         public ActionResult Index(Speciality? coachSpeciality)
         {
             var coachSpecList = new List<Speciality?>();
 
-            var coaches = from c in db.Coaches
+            var coaches = from c in coachRepository.GetCoaches()
                           select c;
 
-            var coachSpec = from c in db.Coaches
+            var coachSpec = from c in coachRepository.GetCoaches()
                             orderby c.Speciality
                             select c.Speciality;
 
@@ -46,7 +48,7 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Coach coach = db.Coaches.Find(id);
+            Coach coach = coachRepository.GetCoachByID(id);
             if (coach == null)
             {
                 return HttpNotFound();
@@ -69,8 +71,8 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
         {
             if (ModelState.IsValid)
             {
-                db.Coaches.Add(coach);
-                db.SaveChanges();
+                coachRepository.InsertCoach(coach);
+                coachRepository.Save();
                 return RedirectToAction("Index");
             }
 
@@ -84,7 +86,7 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Coach coach = db.Coaches.Find(id);
+            Coach coach = coachRepository.GetCoachByID(id);
             if (coach == null)
             {
                 return HttpNotFound();
@@ -101,8 +103,8 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(coach).State = EntityState.Modified;
-                db.SaveChanges();
+                coachRepository.UpdateCoach(coach);
+                coachRepository.Save();
                 return RedirectToAction("Index");
             }
             return View(coach);
@@ -121,7 +123,7 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
                 ViewBag.ErrorMessage = "Delete failed. Try again, and if the problem persists see your system administrator.";
             }
 
-            Coach coach = db.Coaches.Find(id);
+            Coach coach = coachRepository.GetCoachByID(id);
             if (coach == null)
             {
                 return HttpNotFound();
@@ -136,9 +138,9 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
         {
             try
             {
-                Coach coach = db.Coaches.Find(id);
-                db.Coaches.Remove(coach);
-                db.SaveChanges();
+                Coach coach = coachRepository.GetCoachByID(id);
+                coachRepository.DeleteCoach(id);
+                coachRepository.Save();
             }
             catch
             {
@@ -152,7 +154,7 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
         {
             if (disposing)
             {
-                db.Dispose();
+                coachRepository.Dispose();
             }
             base.Dispose(disposing);
         }

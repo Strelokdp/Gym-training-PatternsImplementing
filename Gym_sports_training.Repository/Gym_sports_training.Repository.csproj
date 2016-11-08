@@ -50,8 +50,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DAL\ClientRepository.cs" />
+    <Compile Include="DAL\CoachRepository.cs" />
     <Compile Include="DAL\GymContext.cs" />
     <Compile Include="DAL\IClientRepository.cs" />
+    <Compile Include="DAL\ICoachRepository.cs" />
+    <Compile Include="DAL\ITrainingSessionRepository.cs" />
+    <Compile Include="DAL\TrainingSessionRepository.cs" />
     <Compile Include="Models\Client.cs" />
     <Compile Include="Models\Coach.cs" />
     <Compile Include="Models\TrainingSession.cs" />

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
@@ -12,7 +11,16 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
 {
     public class TrainingSessionsController : Controller
     {
-        private GymContext db = new GymContext();
+        private ITrainingSessionRepository trainingSessionRepository;
+        private ICoachRepository coachRepository;
+        private IClientRepository clientRepository;
+
+        public TrainingSessionsController()
+        {
+            this.trainingSessionRepository = new TrainingSessionRepository(new GymContext());
+            this.coachRepository = new CoachRepository(new GymContext());
+            this.clientRepository = new ClientRepository(new GymContext());
+        }
 
         // GET: TrainingSessions
         public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
@@ -32,7 +40,7 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
 
             ViewBag.CurrentFilter = searchString;
 
-            var trainingSessions = db.TrainingSessions.Include(t => t.Client).Include(t => t.Coach);
+            var trainingSessions = trainingSessionRepository.GetTrainingSessions();
 
             if (!String.IsNullOrEmpty(searchString))
             {
@@ -71,7 +79,7 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            TrainingSession trainingSession = db.TrainingSessions.Find(id);
+            TrainingSession trainingSession = trainingSessionRepository.GetTrainingSessionByID(id);
             if (trainingSession == null)
             {
                 return HttpNotFound();
@@ -82,8 +90,8 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
         // GET: TrainingSessions/Create
         public ActionResult Create()
         {
-            ViewBag.ClientId = new SelectList(db.Clients, "Id", "Name");
-            ViewBag.CoachId = new SelectList(db.Coaches, "Id", "Name");
+            ViewBag.ClientId = new SelectList(clientRepository.GetClients(), "Id", "Name");
+            ViewBag.CoachId = new SelectList(coachRepository.GetCoaches(), "Id", "Name");
             return View();
         }
 
@@ -96,13 +104,13 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
         {
             if (ModelState.IsValid)
             {
-                db.TrainingSessions.Add(trainingSession);
-                db.SaveChanges();
+                trainingSessionRepository.InsertTrainingSession(trainingSession);
+                trainingSessionRepository.Save();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.ClientId = new SelectList(db.Clients, "Id", "Name", trainingSession.ClientId);
-            ViewBag.CoachId = new SelectList(db.Coaches, "Id", "Name", trainingSession.CoachId);
+            ViewBag.ClientId = new SelectList(clientRepository.GetClients(), "Id", "Name", trainingSession.ClientId);
+            ViewBag.CoachId = new SelectList(coachRepository.GetCoaches(), "Id", "Name", trainingSession.CoachId);
             return View(trainingSession);
         }
 
@@ -113,13 +121,13 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            TrainingSession trainingSession = db.TrainingSessions.Find(id);
+            TrainingSession trainingSession = trainingSessionRepository.GetTrainingSessionByID(id);
             if (trainingSession == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.ClientId = new SelectList(db.Clients, "Id", "Name", trainingSession.ClientId);
-            ViewBag.CoachId = new SelectList(db.Coaches, "Id", "Name", trainingSession.CoachId);
+            ViewBag.ClientId = new SelectList(clientRepository.GetClients(), "Id", "Name", trainingSession.ClientId);
+            ViewBag.CoachId = new SelectList(coachRepository.GetCoaches(), "Id", "Name", trainingSession.CoachId);
             return View(trainingSession);
         }
 
@@ -132,12 +140,12 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(trainingSession).State = EntityState.Modified;
-                db.SaveChanges();
+                trainingSessionRepository.UpdateTrainingSession(trainingSession);
+                trainingSessionRepository.Save();
                 return RedirectToAction("Index");
             }
-            ViewBag.ClientId = new SelectList(db.Clients, "Id", "Name", trainingSession.ClientId);
-            ViewBag.CoachId = new SelectList(db.Coaches, "Id", "Name", trainingSession.CoachId);
+            ViewBag.ClientId = new SelectList(clientRepository.GetClients(), "Id", "Name", trainingSession.ClientId);
+            ViewBag.CoachId = new SelectList(coachRepository.GetCoaches(), "Id", "Name", trainingSession.CoachId);
             return View(trainingSession);
         }
 
@@ -154,7 +162,7 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
                 ViewBag.ErrorMessage = "Delete failed. Try again, and if the problem persists see your system administrator.";
             }
 
-            TrainingSession trainingSession = db.TrainingSessions.Find(id);
+            TrainingSession trainingSession = trainingSessionRepository.GetTrainingSessionByID(id);
             if (trainingSession == null)
             {
                 return HttpNotFound();
@@ -169,9 +177,9 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
         {
             try
             {
-                TrainingSession trainingSession = db.TrainingSessions.Find(id);
-                db.TrainingSessions.Remove(trainingSession);
-                db.SaveChanges();
+                TrainingSession trainingSession = trainingSessionRepository.GetTrainingSessionByID(id);
+                trainingSessionRepository.DeleteTrainingSession(id);
+                trainingSessionRepository.Save();
             }
             catch
             {
@@ -185,7 +193,7 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
         {
             if (disposing)
             {
-                db.Dispose();
+                trainingSessionRepository.Dispose();
             }
             base.Dispose(disposing);
         }

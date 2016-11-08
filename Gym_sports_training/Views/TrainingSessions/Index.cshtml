@@ -1,0 +1,62 @@
+﻿@model PagedList.IPagedList<Gym_sports_training.Models.Entities.TrainingSession>
+@using PagedList.Mvc;
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+@{
+    ViewBag.Title = "Training sessions schedule";
+}
+
+<h2>Training sessions</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+
+@using (Html.BeginForm("Index", "TrainingSessions", FormMethod.Get))
+{
+    <p>
+        Find by phone number: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+        <input type="submit" value="Search" />
+    </p>
+}
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.ActionLink("Phone Number", "Index", new { sortOrder = ViewBag.PhoneSortParm, currentFilter = ViewBag.CurrentFilter })
+        </th>
+        <th>
+            Coach
+        </th>
+        <th>
+            @Html.ActionLink("Training start time", "Index", new { sortOrder = ViewBag.TrainingStartSortParm, currentFilter = ViewBag.CurrentFilter })
+        </th>
+        <th></th>
+    </tr>
+
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Client.PhoneNumber)
+            </td>
+            <td>
+                @Html.ActionLink(item.Coach.FullName, "CoachDetails", new { id = item.Coach.Id }) 
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TrainingTimeStart)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+            </td>
+        </tr>
+    }
+
+</table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))

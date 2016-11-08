@@ -1,0 +1,48 @@
+﻿@model Gym_sports_training.Models.Entities.TrainingSession
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+<p class="error">@ViewBag.ErrorMessage</p>
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>TrainingSession</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Client.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Client.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Coach.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Coach.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TrainingTimeStart)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TrainingTimeStart)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            @Html.ActionLink("Back to List", "Index")
+        </div>
+    }
+</div>

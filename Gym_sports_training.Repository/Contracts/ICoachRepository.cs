@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gym_sports_training.Repository.DAL
+namespace Gym_sports_training.Repository.Contracts
 {
     public interface ICoachRepository
     {

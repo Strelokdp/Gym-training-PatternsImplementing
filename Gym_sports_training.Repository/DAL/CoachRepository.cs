@@ -1,4 +1,5 @@
-﻿using Gym_sports_training.Repository.Models;
+﻿using Gym_sports_training.Repository.Contracts;
+using Gym_sports_training.Repository.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;

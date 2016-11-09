@@ -49,14 +49,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DAL\ClientRepository.cs" />
-    <Compile Include="DAL\CoachRepository.cs" />
     <Compile Include="DAL\GenericRepository.cs" />
     <Compile Include="DAL\GymContext.cs" />
-    <Compile Include="Contracts\IClientRepository.cs" />
-    <Compile Include="Contracts\ICoachRepository.cs" />
-    <Compile Include="Contracts\ITrainingSessionRepository.cs" />
-    <Compile Include="DAL\TrainingSessionRepository.cs" />
     <Compile Include="DAL\UnitOfWork.cs" />
     <Compile Include="Models\Client.cs" />
     <Compile Include="Models\Coach.cs" />

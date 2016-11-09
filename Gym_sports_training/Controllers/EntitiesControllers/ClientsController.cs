@@ -12,15 +12,10 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
 {
     public class ClientsController : Controller
     {
-        private IClientRepository clientRepository;
-
-        public ClientsController()
-        {
-            this.clientRepository = new ClientRepository(new GymContext());
-        }
-
+        private UnitOfWork unitOfWork = new UnitOfWork();
+        
         // GET: Clients
-        public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
+        public ViewResult Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.SortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
@@ -36,7 +31,7 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
 
             ViewBag.CurrentFilter = searchString;
 
-            var sortedClients = from s in clientRepository.GetClients()
+            var sortedClients = from s in unitOfWork.ClientRepository.Get()
                                 select s;
 
             if (!String.IsNullOrEmpty(searchString))
@@ -53,17 +48,17 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
                 switch (flag)
                 {
                     case 0:
-                        sortedClients = from s in clientRepository.GetClients()
+                        sortedClients = from s in unitOfWork.ClientRepository.Get()
                                         where s.LastName.Contains(searchString)
                                         select s;
                         break;
                     case 1:
-                        sortedClients = from s in clientRepository.GetClients()
+                        sortedClients = from s in unitOfWork.ClientRepository.Get()
                                         where s.PhoneNumber.Contains(searchString)
                                         select s;
                         break;
                     case 2:
-                        sortedClients = from s in clientRepository.GetClients()
+                        sortedClients = from s in unitOfWork.ClientRepository.Get()
                                         where s.EMail.Contains(searchString)
                                         select s;
                         break;
@@ -94,7 +89,7 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Client client = clientRepository.GetClientByID(id);
+            Client client = unitOfWork.ClientRepository.GetByID(id);
             if (client == null)
             {
                 return HttpNotFound();
@@ -117,8 +112,8 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
         {
             if (ModelState.IsValid)
             {
-                clientRepository.InsertClient(client);
-                clientRepository.Save();
+                unitOfWork.ClientRepository.Insert(client);
+                unitOfWork.Save();
                 return RedirectToAction("Index");
             }
 
@@ -132,11 +127,13 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Client client = clientRepository.GetClientByID(id);
+
+            Client client = unitOfWork.ClientRepository.GetByID(id);
             if (client == null)
             {
                 return HttpNotFound();
             }
+
             return View(client);
         }
 
@@ -149,8 +146,8 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
         {
             if (ModelState.IsValid)
             {
-                clientRepository.UpdateClient(client);
-                clientRepository.Save();
+                unitOfWork.ClientRepository.Update(client);
+                unitOfWork.Save();
                 return RedirectToAction("Index");
             }
             return View(client);
@@ -169,7 +166,7 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
                 ViewBag.ErrorMessage = "Delete failed. Try again, and if the problem persists see your system administrator.";
             }
 
-            Client client = clientRepository.GetClientByID(id);
+            Client client = unitOfWork.ClientRepository.GetByID(id);
             if (client == null)
             {
                 return HttpNotFound();
@@ -184,9 +181,9 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
         {
             try
             {
-                Client client = clientRepository.GetClientByID(id);
-                clientRepository.DeleteClient(id);
-                clientRepository.Save();
+                Client client = unitOfWork.ClientRepository.GetByID(id);
+                unitOfWork.ClientRepository.Delete(client);
+                unitOfWork.Save();
             }
             catch
             {
@@ -198,7 +195,7 @@ namespace Gym_sports_training.Controllers.EntitiesControllers
 
         protected override void Dispose(bool disposing)
         {
-            clientRepository.Dispose();
+            unitOfWork.Dispose();
             base.Dispose(disposing);
         }
     }
